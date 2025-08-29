@@ -1,0 +1,65 @@
+---
+title: "Taller"
+subtitle: "Gemini para análisis cualitativo escalable en R"
+author: "Ismael Aguayo y Exequiel Trujillo"
+date: today
+lang: en
+fontsize: 14pt
+format:
+  html:
+    code-fold: true
+    toc: true
+    toc-location: left
+    toc-depth: 2
+    toc-expand: 1
+    toc-title: Contenidos
+    number-sections: true
+    number-depth: 3
+    theme:
+      - united
+    code-link: true
+    title-block-banner: true
+editor_options: 
+  chunk_output_type: console
+---
+
+## 2. Setup
+```{r}
+pacman::p_load(datamedios, gemini.R, dplyr, jsonlite, tidytext, ggplot2, dotenv)
+options(scipen = 999)
+rm(list = ls())
+```
+
+## 3. Cargar data
+
+```{r}
+datos <- datamedios::extraer_noticias_fecha("inteligencia artificial", "2022-11-1", "2023-04-30")
+
+```
+
+
+```{r}
+datos <- datamedios::limpieza_notas(datos, sinonimos= c("IA", "chat gpt", "openai", "chatbot", "chatgpt"))
+
+datos_filtrados <- datos %>%
+    select(titulo, contenido_limpio, fecha, medio)
+```
+
+```{r}
+grafico_notas_fecha(datos_filtrados, "Inteligencia artificial", "2022-11-1", "2023-04-30", tema = "dark")
+```
+```{r}
+datos_filtrados2 <- datos_filtrados %>%
+    group_by(fecha) %>%
+    filter(n() == 6) %>%
+    ungroup()
+
+
+```
+```{r}
+library(gemini.R)
+google_api <- Sys.getenv("GEMINI_API_KEY")
+setAPI(google_api) # check https://makersuite.google.com/app/apikey
+gemini("¿Cuál es la diferencia entre la inteligencia artificial y la inteligencia artesanal? Responde en una linea")
+
+```
