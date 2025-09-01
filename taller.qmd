@@ -34,7 +34,7 @@ rm(list = ls())
 ## 3. Cargar, limpiar y filtrar data
 
 ```{r}
-datos <- datamedios::extraer_noticias_fecha("inteligencia artificial", "2022-11-1", "2023-04-30")
+datos <- datamedios::extraer_noticias_fecha("inteligencia artificial", "2022-11-1", "2025-09-01")
 
 ```
 
@@ -43,17 +43,17 @@ datos <- datamedios::extraer_noticias_fecha("inteligencia artificial", "2022-11-
 datos <- datamedios::limpieza_notas(datos, sinonimos= c("IA", "chat gpt", "openai", "chatbot", "chatgpt"))
 
 datos_filtrados <- datos %>%
-    select(titulo, contenido_limpio, fecha, medio)
+    select(titulo, contenido_limpio, fecha, medio, url)
 ```
 
 ## 4. Explorar data
 ```{r}
-datamedios::grafico_notas_fecha(datos_filtrados, "Inteligencia artificial", "2022-11-1", "2023-04-30", tema = "dark")
+datamedios::grafico_notas_fecha(datos_filtrados, "Inteligencia artificial", tema = "dark")
 ```
 ```{r}
-datos_filtrados2 <- datos_filtrados %>%
-    filter(fecha == "2022-12-21" | fecha == "2023-04-26")
+set.seed(42)
 
+noticias_muestra <- slice_sample(datos_filtrados, n=20)
 ```
 
 ## 5. Testear Gemini
@@ -71,19 +71,131 @@ gemini("¿Cuál es la diferencia entre la inteligencia artificial y la inteligen
 
 # En model se pueden usar varios para respuesta de texto, como "gemini-2.5-pro", "gemini-2.5-flash", "gemini-2.5-flash-lite", etc.
 # Pueden revisar el listado completo en https://ai.google.dev/gemini-api/docs/models
-model = "2.5-flash-lite",
+g_model = "2.5-flash-lite"
 
 # Podemos elegir también la temperatura para el modelo. Apunta a la objetividad-creatividad permitida en las respuestas.
 # Números más cercanos a cero serían más "objetivos" y números más cercanos a dos serían más "creativos" (y propensos a alucinaciones).
-temperature = 0.7,
+g_temperature = 0.7
 
 # También pdoemos setear una semilla para hacer los resultados más reproducibles aunque no podemos asegurarlo completamente
-seed = 42,
+g_seed = 42
 
 # Los siguientes recomendamos no cambiarlos para pruebas básicas
-# maxOutputTokens = 8192,
-# topK = 40,
-# topP = 0.95,
+# maxOutputTokens = 8192
+# topK = 40
+# topP = 0.95
 # timeout = 60
 ```
 
+## 7. Prompts
+En estricto rigor, gemini no permite que le pasemos instrucciones de sistema, petición de texto y estructuras de respuesta por separado. Nosotros en este caso los separamos en objetos distintos solo para hacerlo más modificable.
+
+```{r}
+system_prompt <- "Eres un científico social experto en análisis cualitativo con formación interdisciplinaria en sociología, antropología, ciencias políticas y ciencias de la comunicación. Tienes amplia experiencia en investigación de medios, análisis de discurso, estudios culturales y semiótica social. Posees la capacidad de examinar contenido mediático desde múltiples perspectivas teóricas, identificando marcos narrativos e interpretativos, agendas mediáticas, construcciones simbólicas y procesos de significación. Mantienes una perspectiva académica rigurosa y pensamiento crítico interdisciplinario."
+
+prompt_instruccion <- "Analiza la siguiente noticia relacionada con inteligencia artificial desde una perspectiva de ciencias sociales y comunicación. Tu análisis debe ser profundo y reflexivo, examinando tanto el contenido explícito como los elementos implícitos y simbólicos.
+
+Requisitos para el análisis:
+
+- Determina el rol específico que cumple la IA en la noticia: ¿es el tema central, un elemento secundario, o apenas se menciona?
+- Evalúa la centralidad de la IA en la narrativa y su relevancia real para el contenido
+- Identifica orientaciones tecnofóbicas o tecnofílicas en el tratamiento informativo
+- Examina cómo se representa la IA: sus capacidades, limitaciones, riesgos o beneficios
+- Analiza los marcos interpretativos y narrativos utilizados para contextualizar la tecnología
+- Detecta sesgos, omisiones o énfasis particulares en la construcción del discurso sobre IA
+- Considera las implicaciones sociales, económicas o éticas planteadas
+- Identifica actores sociales mencionados y sus posiciones respecto a la IA
+- Evalúa qué perspectivas están presentes o ausentes en el debate
+- Genera keywords conceptuales que capturen la esencia sociológica del contenido
+- Proporciona un resumen analítico que sintetice los hallazgos principales
+
+Mantén un enfoque crítico y académico, fundamentando tus observaciones en el contenido analizado."
+
+json_estructura <- 'Responde exclusivamente en formato JSON válido. Tu respuesta debe ser ÚNICAMENTE así, comenzando con "{" y terminando con "}". 
+
+** NO AGREGUES BLOQUES DE CÓDIGO EN TU RESPUESTA (de esas que tienen este caracter `)**
+
+Consideraciones:
+  - Las keywords van en minúsculas y si se componen de más de una palabra llevan espacios entre ellas.
+  - Label: Máximo 3 palabras
+  - En el json SOLO Y UNICAMENTE debe haber información extraida de la noticia misma y no de las instrucciones de los requisitos de análisis.
+
+Estructura:
+
+{
+  "keywords": ["palabra1", "palabra2", "palabra3"],
+  "orientacion_tecnologica": "tecnofobia|tecnofilia|neutralidad",
+  "centralidad_ia": "alta|media|baja",
+  "actores_principales": [
+    {
+      "nombre": "nombre_del_actor",
+      "rol_respecto_ia": "descripción_breve_de_su_posición_o_relación_con_ia"
+    }
+  ],
+  "analisis": "Análisis conciso en 2-3 oraciones que sintetice los hallazgos más relevantes del enfoque sociológico y comunicacional.",
+  "label": "etiqueta_descriptiva_de_la_noticia"
+})
+'
+```
+
+## 8. Funciones
+
+```{r}
+# Función 1: Crear prompt completo con contexto
+crear_prompt_completo <- function(fila_noticia) {
+  # Extraer información de la fila
+  titulo <- fila_noticia$titulo
+  contenido <- fila_noticia$contenido_limpio
+  fecha <- fila_noticia$fecha
+  
+  # Crear contexto de la noticia
+  contexto_noticia <- paste0(
+    "# **Para responder básate únicamente en el contenido de la noticia a analizar.** \n",
+    "CONTEXTO DE LA NOTICIA:\n",
+    "Título: ", titulo, "\n",
+    "Fecha: ", fecha, "\n\n",
+    "CONTENIDO:\n", contenido
+  )
+  
+  # Combinar todos los elementos del prompt
+  prompt_final <- paste(
+    system_prompt,
+    "\n\n",
+    prompt_instruccion,
+    "\n\n",
+    contexto_noticia,
+    "\n\n",
+    json_estructura,
+    sep = ""
+  )
+  
+  return(prompt_final)
+}
+
+prompt_example <- crear_prompt_completo(noticias_muestra[5,])
+example <- gemini(
+  prompt_example,
+  model = g_model,
+  temperature = g_temperature,
+  seed = g_seed
+)
+```
+
+```{r}
+lista_penca <- list()
+
+for (i in nrow(noticias_muestra)){
+  noticia <- noticias_muestra[i,]
+  prompt <- crear_prompt_completo(noticia)
+
+  analisis <- gemini(
+  prompt,
+  model = g_model,
+  temperature = g_temperature,
+  seed = g_seed
+)
+
+  append(lista_penca, analisis)
+  Sys.sleep(5)
+}
+```
