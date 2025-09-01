@@ -26,7 +26,7 @@ editor_options:
 
 ## 2. Setup
 ```{r}
-pacman::p_load(datamedios, gemini.R, dplyr, jsonlite, tidytext, ggplot2, dotenv)
+pacman::p_load(datamedios, gemini.R, dplyr, jsonlite, tidytext, ggplot2, dotenv, stringr, purrr, DT)
 options(scipen = 999)
 rm(list = ls())
 ```
@@ -51,7 +51,7 @@ datos_filtrados <- datos %>%
 datamedios::grafico_notas_fecha(datos_filtrados, "Inteligencia artificial", tema = "dark")
 ```
 ```{r}
-set.seed(42)
+set.seed(123)
 
 noticias_muestra <- slice_sample(datos_filtrados, n=20)
 ```
@@ -116,9 +116,9 @@ json_estructura <- 'Responde exclusivamente en formato JSON válido. Tu respuest
 ** NO AGREGUES BLOQUES DE CÓDIGO EN TU RESPUESTA (de esas que tienen este caracter `)**
 
 Consideraciones:
-  - Las keywords van en minúsculas y si se componen de más de una palabra llevan espacios entre ellas.
-  - Label: Máximo 3 palabras
-  - En el json SOLO Y UNICAMENTE debe haber información extraida de la noticia misma y no de las instrucciones de los requisitos de análisis.
+  - Las keywords deben ser 5, ir en minúsculas y si se componen de más de una palabra llevan espacios entre ellas.
+  . Deben ser 5 actores principales, si no existe alguno entrega el campo igualmente con NULL.
+  - Label: Máximo 3 palabras.
 
 Estructura:
 
@@ -138,7 +138,7 @@ Estructura:
 '
 ```
 
-## 8. Funciones
+## 9. Función para crear promt
 
 ```{r}
 # Función 1: Crear prompt completo con contexto
@@ -181,10 +181,11 @@ example <- gemini(
 )
 ```
 
+## 10. Iteración guardando en una lista
 ```{r}
-lista_penca <- list()
+lista_respuestas <- list()
 
-for (i in nrow(noticias_muestra)){
+for (i in 1:nrow(noticias_muestra)){
   noticia <- noticias_muestra[i,]
   prompt <- crear_prompt_completo(noticia)
 
@@ -195,7 +196,69 @@ for (i in nrow(noticias_muestra)){
   seed = g_seed
 )
 
-  append(lista_penca, analisis)
+  lista_respuestas <- append(lista_respuestas, analisis)
   Sys.sleep(5)
 }
+```
+
+## 11. Limpieza y aplanamiento
+
+```{r}
+lista_proc <- lapply(lista_respuestas, function(elemento) {
+  texto_sucio <- elemento
+  texto_limpio <- str_trim(str_remove_all(texto_sucio, "^```json|```$"))
+
+  objeto_r <- fromJSON(texto_limpio, flatten = TRUE)
+  
+  return(objeto_r)
+})
+
+```
+
+
+```{r}
+aplanar_elemento <- function(elemento) {
+  data.frame(
+    # Vectores simples
+    keywords = paste(elemento$keywords, collapse = "; "),
+    orientacion_tecnologica = elemento$orientacion_tecnologica,
+    centralidad_ia = elemento$centralidad_ia,
+    label = elemento$label,
+    analisis = elemento$analisis,
+    
+    # Información de actores (concatenamos todo)
+    actores_nombres = paste(elemento$actores_principales$nombre, collapse = "; "),
+    actores_roles = paste(elemento$actores_principales$rol_respecto_ia, collapse = "; "),
+    
+    stringsAsFactors = FALSE
+  )
+}
+
+# Aplicar a todos los elementos
+df_opcion1 <- purrr::map_dfr(lista_proc, aplanar_elemento)
+```
+
+```{r}
+datos_unificados <- bind_cols(noticias_muestra, df_opcion1)
+```
+
+```{r}
+library(DT)
+library(dplyr)
+
+datatable(datos_unificados,
+  options = list(
+    columnDefs = list(
+      list(
+        # Aplicar a las columnas 3 y 5
+        targets = c(2, 4), 
+        render = JS(
+          "function(data, type, row, meta) {",
+          "  return type === 'display' && data.length > 50 ?",
+          "    '<span title=\"' + data + '\">' + data.substr(0, 50) + '...</span>' : data;",
+          "}")
+      )
+    )
+  )
+)
 ```
