@@ -14,3 +14,17 @@
 -   Cargar datos: query gemini
 
 [Docs gemini api](https://jhk0530.github.io/gemini.R/reference/index.html)
+
+## 3. Promptear
+
+-   Que la información venga estructurada (formato JSON)
+-   Frameworks de prompting design (TCREI)
+
+## 4. Funciones para pipelines con LLMs
+
+-   Diseño para casos específicos
+-   Contexto Relevante (underfitting-overfitting)
+
+## 5. Gráficos PCA - UMAP
+-   Embeddings (gemini.R)
+-   Visualización de Clusters

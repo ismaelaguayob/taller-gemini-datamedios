@@ -22,6 +22,7 @@ format:
 editor_options: 
   chunk_output_type: console
 ---
+## 1. Antecedentes
 
 ## 2. Setup
 ```{r}
@@ -30,7 +31,7 @@ options(scipen = 999)
 rm(list = ls())
 ```
 
-## 3. Cargar data
+## 3. Cargar, limpiar y filtrar data
 
 ```{r}
 datos <- datamedios::extraer_noticias_fecha("inteligencia artificial", "2022-11-1", "2023-04-30")
@@ -45,21 +46,44 @@ datos_filtrados <- datos %>%
     select(titulo, contenido_limpio, fecha, medio)
 ```
 
+## 4. Explorar data
 ```{r}
-grafico_notas_fecha(datos_filtrados, "Inteligencia artificial", "2022-11-1", "2023-04-30", tema = "dark")
+datamedios::grafico_notas_fecha(datos_filtrados, "Inteligencia artificial", "2022-11-1", "2023-04-30", tema = "dark")
 ```
 ```{r}
 datos_filtrados2 <- datos_filtrados %>%
-    group_by(fecha) %>%
-    filter(n() == 6) %>%
-    ungroup()
-
+    filter(fecha == "2022-12-21" | fecha == "2023-04-26")
 
 ```
+
+## 5. Testear Gemini
 ```{r}
 library(gemini.R)
 google_api <- Sys.getenv("GEMINI_API_KEY")
 setAPI(google_api) # check https://makersuite.google.com/app/apikey
-gemini("¿Cuál es la diferencia entre la inteligencia artificial y la inteligencia artesanal? Responde en una linea")
+gemini("¿Cuál es la diferencia entre la inteligencia artificial y la inteligencia artesanal? Responde en una línea")
 
 ```
+
+## 6. Settear Gemini
+```{r}
+# Podemos hacer una configuración básica de gemini para el caso que queramos.
+
+# En model se pueden usar varios para respuesta de texto, como "gemini-2.5-pro", "gemini-2.5-flash", "gemini-2.5-flash-lite", etc.
+# Pueden revisar el listado completo en https://ai.google.dev/gemini-api/docs/models
+model = "2.5-flash-lite",
+
+# Podemos elegir también la temperatura para el modelo. Apunta a la objetividad-creatividad permitida en las respuestas.
+# Números más cercanos a cero serían más "objetivos" y números más cercanos a dos serían más "creativos" (y propensos a alucinaciones).
+temperature = 0.7,
+
+# También pdoemos setear una semilla para hacer los resultados más reproducibles aunque no podemos asegurarlo completamente
+seed = 42,
+
+# Los siguientes recomendamos no cambiarlos para pruebas básicas
+# maxOutputTokens = 8192,
+# topK = 40,
+# topP = 0.95,
+# timeout = 60
+```
+
