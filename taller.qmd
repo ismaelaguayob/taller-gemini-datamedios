@@ -19,6 +19,8 @@ format:
       - united
     code-link: true
     title-block-banner: true
+comments:
+  hypothesis: true
 editor_options: 
   chunk_output_type: console
 ---
@@ -261,4 +263,10 @@ datatable(datos_unificados,
     )
   )
 )
+```
+
+```{r}
+write.csv(datos_unificados, "datos.csv")
+
+
 ```
