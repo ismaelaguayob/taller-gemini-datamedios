@@ -28,7 +28,7 @@ editor_options:
 
 ## 2. Setup
 ```{r}
-pacman::p_load(datamedios, gemini.R, dplyr, jsonlite, tidytext, ggplot2, dotenv, stringr, purrr, DT)
+pacman::p_load(datamedios, gemini.R, dplyr, ggplot2, dotenv, purrr)
 options(scipen = 999)
 rm(list = ls())
 ```
