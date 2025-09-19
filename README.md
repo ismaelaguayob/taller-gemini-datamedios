@@ -1,9 +1,8 @@
 ## 1. Relevancia y antecedentes
 
 -   Que son los llms, la revolucion del llm etc
--   Por que en Ciencias sociales
--   Papers
--   OpenAI, Claude, Gemini, open source-locallm, q wea es gemini, creditos gratis en la api
+-   Por que para el análisis cualitativo, mostrar artículos recientes
+-   OpenAI, Claude, Gemini, open source-locallm, q es gemini, creditos gratis en la api
 -   ¿Qué es datamedios?
 
 ## 2. Setup
@@ -24,6 +23,7 @@
 
 -   Diseño para casos específicos
 -   Contexto Relevante (underfitting-overfitting)
+-   Iteraciones con manejo de errores para automatización
 
 ## 5. Gráficos PCA - UMAP
 
@@ -38,6 +38,5 @@ https://cran.r-project.org/web/packages/text/vignettes/huggingface_in_r.html
 
 ## To do:
 
-1.  Dejar el repositorio bonito y ordenado para adjuntarlo y que vean el código
-
-2.  Hacer análisis y estadísticos descriptivos en el qmd
+1.  Hacer análisis y estadísticos descriptivos en el qmd (utilizando uno de los modelos de arriba)
+2.  Ajustar errores menores
