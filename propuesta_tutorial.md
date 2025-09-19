@@ -8,11 +8,11 @@ El desarrollo de la IA y los modelos generativos potencian el análisis cualitat
 
 En este marco, los objetivos planteados son:
 
--   El/la estudiante **comprenderá** los beneficios de usar LLMs para el análisis de texto y las bases de las estructuras transformer.
+-   El/la estudiante **comprenderá** los beneficios de usar LLMs para el análisis de texto.
 
--   El/la estudiante **diseñará** prompts para análisis cualitativo y **creará** criterios para evaluar los resultados del LLM.
+-   El/la estudiante **diseñará** prompts para análisis cualitativo y **creará** criterios para evaluar los resultados del LLMs.
 
--   El/la estudiante **ajustará** los parámetros del modelo y los prompts para asegurar resultados rigurosos y reproducibles.
+-   El/la estudiante **ajustará** los parámetros del modelo y los prompts para apuntar a resultados rigurosos y reproducibles.
 
 -   El/la estudiante **automatizará** el análisis de texto en R con funciones e iteraciones para obtener un objeto estructurado.
 
@@ -48,11 +48,11 @@ Persona 2:
 
 - Sofía es una investigadora en salud pública que trabaja con transcripciones de entrevistas semi-estructuradas a pacientes con enfermedades crónicas.
 
-- Tiene un nivel intermedio de R y del tidyverse. Ha creado sus propias funciones para automatizar tareas repetitivas de limpieza y se siente seguro con las iteraciones.
+- Tiene un nivel intermedio de R y del tidyverse. Ha creado sus propias funciones para automatizar tareas repetitivas de limpieza y se siente segura con las iteraciones.
 
 - Su objetivo es identificar y sistematizar las barreras de acceso al sistema de salud mencionadas por los pacientes en las entrevistas. Busca un método que le permita extraer esta información de manera estructurada (por ejemplo, en un dataframe con columnas para "tipo de barrera", "contexto", "cita textual") para luego analizarla cuantitativamente.
 
-- A David le preocupa mucho la rigurosidad y la transparencia metodológica. Le interesa especialmente aprender a diseñar y optimizar "prompts" para asegurar que los resultados del modelo de IA sean consistentes, fiables y poder justificar su método en una publicación científica.
+- A Sofía le preocupa mucho la rigurosidad y la transparencia metodológica. Le interesa especialmente aprender a diseñar y optimizar "prompts" para asegurar que los resultados del modelo de IA sean consistentes, fiables y poder justificar su método en una publicación científica.
 
 ## Máximo de integrantes: 30
 
@@ -60,11 +60,11 @@ Persona 2:
 
 ## Estructura del tutorial
 
-El tutorial se compondrá de dos bloques y considera una pausa intermedia de aproximadamente 15 minutos. En la primera sección, se abordarán los antecedentes generales del taller, como la relevancia, contexto, funcionamiento de la tecnología, etc. Además, se configurará la sesión y llevarán a cabo los preparamientos necesarios para que la parte práctica funcione bien. Luego, en una segunda sección, se realizará el núcleo del taller, ejecutando el flujo de trabajo con LLMs planteado y finalizando con un análisis breve de los resultados obtenidos. Ambas secciones serán de aproximadamente una hora. 
+El tutorial se compondrá de dos bloques y considera una pausa intermedia de aproximadamente 15 minutos. En la primera sección, se abordarán los antecedentes generales del taller, como la relevancia, contexto, funcionamiento de la tecnología, etc. Además, se configurará la sesión y llevarán a cabo los preparativos necesarios para que la parte práctica funcione bien. Luego, en una segunda sección, se realizará el núcleo del taller, ejecutando el flujo de trabajo con LLMs planteado y finalizando con un análisis breve de los resultados obtenidos. Ambas secciones serán de aproximadamente una hora.
 
 ## Requerimientos
 
-Versión mínima de R 4.1, paquetes instalados 'gemini.R', 'datamedios', 'dplyr', 'purrr', 'ggplot2', ojalá que tengan una API de google ya habilitada (se puede crear una API KEY en https://aistudio.google.com/apikey, si tienen problemas igualmente se abordará en el tutorial).
+Versión mínima de R 4.1, paquetes instalados 'gemini.R', 'datamedios', 'dplyr', 'purrr', 'ggplot2', 'jsonlite' (todos disponibles en CRAN), ojalá que tengan una API de google ya habilitada (se puede crear una API KEY en https://aistudio.google.com/apikey, si tienen problemas igualmente se abordará en el tutorial).
 
 ## Instructores
 
@@ -72,4 +72,4 @@ En el taller participarán dos personas como instructores, ambos integrantes de 
 
 ## Recursos
 
-Link al repositorio del tutorial: https://github.com/ismaelaguayob/taller-gemini-datamedios
+Link al repositorio del tutorial (trabajo en progreso, con la mayoría del código ya escrito): https://github.com/ismaelaguayob/taller-gemini-datamedios

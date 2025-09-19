@@ -28,13 +28,14 @@ editor_options:
 
 ## 2. Setup
 ```{r}
-pacman::p_load(datamedios, gemini.R, dplyr, ggplot2, dotenv, purrr)
+pacman::p_load(datamedios, gemini.R, dplyr, ggplot2, dotenv, purrr, jsonlite)
 options(scipen = 999)
 rm(list = ls())
 ```
 
 ## 3. Cargar, limpiar y filtrar data
 
+Nota: Por si acaso alguien tiene algún error inesperado para utilizar datamedios, preparemos un csv con la data ya extraída para que lo utilicen.
 ```{r}
 datos <- datamedios::extraer_noticias_fecha("inteligencia artificial", "2022-11-1", "2025-09-01")
 
@@ -59,6 +60,8 @@ noticias_muestra <- slice_sample(datos_filtrados, n=20)
 ```
 
 ## 5. Testear Gemini
+
+Nota: Manejar mejor la API key con .Renviron en vez de .env. 
 ```{r}
 library(gemini.R)
 google_api <- Sys.getenv("GEMINI_API_KEY")
@@ -184,6 +187,8 @@ example <- gemini(
 ```
 
 ## 10. Iteración guardando en una lista
+
+Nota: Agregar try_catch para capturar errores.
 ```{r}
 lista_respuestas <- list()
 
