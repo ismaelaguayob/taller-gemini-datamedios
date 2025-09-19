@@ -1,3 +1,6 @@
+> [!NOTE]  
+> [LINK DEL TALLER (WORK IN PROGRESS)](https://ismaelaguayob.github.io/taller-gemini-datamedios/taller)
+
 ## 1. Relevancia y antecedentes
 
 -   Que son los llms, la revolucion del llm etc
